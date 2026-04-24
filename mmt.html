@@ -1,0 +1,47 @@
+/* ════════ DELETE ════════ */
+function openConf(e,id){
+  e.stopPropagation();
+  deletingId=id;
+  document.getElementById('conf-modal').classList.add('open');
+}
+function closeConf(){
+  document.getElementById('conf-modal').classList.remove('open');
+  deletingId=null;
+}
+function execDel(){
+  if(!deletingId)return;
+  db.ref('portraits/'+deletingId).once('value',snap=>{
+    const p=snap.val();
+    if(p&&p.img){
+      try{storage.refFromURL(p.img).delete().catch(()=>{});}catch(e){}
+    }
+    db.ref('portraits/'+deletingId).remove().then(()=>{
+      showToast('Portret o\'chirildi','ok');
+    });
+    closeConf();
+  });
+}
+
+/* ════════ TOAST ════════ */
+let toastT=null;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show'+(type?' '+type:'');
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(()=>{t.className='toast'},3000);
+}
+
+/* ════════ KEYBOARD ════════ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.getElementById('view-modal').classList.remove('open');
+    closeConf();
+  }
+  if(e.key==='Enter'&&document.getElementById('login-screen').style.display!=='none'){
+    doAuth();
+  }
+});
+</script>
+</body>
+</html>
